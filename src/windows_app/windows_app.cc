@@ -77,6 +77,7 @@ Window::~Window() {
   }
 }
 
+HWND Window::handle() const { return handle_; }
 const std::wstring& Window::name() const { return name_; }
 uint32_t Window::width() const { return width_; }
 uint32_t Window::height() const { return height_; }
@@ -308,4 +309,3 @@ int WindowsApp::prev_mouse_y = 0;
 int WindowsApp::curr_mouse_x = 0;
 int WindowsApp::curr_mouse_y = 0;
 short WindowsApp::wheel_delta = 0;
-
