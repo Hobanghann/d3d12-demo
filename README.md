@@ -1,1 +1,9 @@
-# d3d12-demo
+## 📚 References
+
+### 📘 Books
+- Introduction to 3D Game Programming with DirectX12 (Frank D. Luna)
+
+### 📝 Official Documentation
+- [Microsoft Direct3D 12 Documentation](https://learn.microsoft.com/en-us/windows/win32/direct3d12/)
+
+---
