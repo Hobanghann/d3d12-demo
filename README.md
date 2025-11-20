@@ -5,5 +5,5 @@
 
 ### 📝 Official Documentation
 - [Microsoft Direct3D 12 Documentation](https://learn.microsoft.com/en-us/windows/win32/direct3d12/)
-
+- [GPU Memory Pools in D3D12](https://therealmjp.github.io/posts/gpu-memory-pool/#how-it-works-in-d3d12)
 ---
