@@ -13,10 +13,8 @@
 
 #include "windows_key.h"
 
-class Window { 
-  friend class WindowsApp;
-
- private:
+class Window {
+ public:
   Window(HINSTANCE hOwner, const std::wstring& name, uint32_t width,
          uint32_t height, WNDPROC msg_handler);
   Window(const Window&) = delete;
@@ -28,8 +26,16 @@ class Window {
   const std::wstring& name() const;
   uint32_t width() const;
   uint32_t height() const;
+  uint32_t client_width() const;
+  uint32_t client_height() const;
+
+  void Resize(uint32_t width, uint32_t height);
+  void ResizeClient(uint32_t client_width, uint32_t client_height);
 
   void Show(int nCmdShow = SW_SHOW);
+
+  void ShowMessageBox(const std::wstring& title, const std::wstring& text,
+                      UINT type = MB_ICONERROR);
 
   std::uint32_t* CreateCPUBackBuffer(uint32_t buffer_width,
                                      uint32_t buffer_height);
@@ -42,7 +48,7 @@ class Window {
 
   void PrintTextInTitle(const std::wstring& text);
 
-
+ private:
   static const uint32_t MAX_BACK_BUFFER_COUNT = 2;
 
   HWND handle_;
@@ -66,6 +72,17 @@ class Window {
 
 class WindowsApp {
  public:
+  // TODO : define following member
+  //
+  // static void CreateApp(...) {
+  //    assert(app_ == nullptr);
+  //    app_ = new ~App(...)
+  // }
+  // static ~App& GetApp() {
+  //    assert(app_ != nullptr);
+  //    return *app_;
+  // }
+
   virtual void Initialize() = 0;
 
   virtual void Run() = 0;
@@ -73,6 +90,8 @@ class WindowsApp {
   virtual void Quit() = 0;
 
   void CreateDebugConsole();
+
+  LRESULT MsgHandler(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 
  protected:
   WindowsApp() = delete;
@@ -91,14 +110,22 @@ class WindowsApp {
   virtual void OnMOUSEWHEEL(WPARAM wParam, LPARAM lParam) = 0;
   virtual void OnSETFOCUS(WPARAM wParam, LPARAM lParam) = 0;
   virtual void OnKILLFOCUS(WPARAM wParam, LPARAM lParam) = 0;
+  virtual void OnSize(WPARAM wParam, LPARAM lParam) = 0;
   virtual void OnENTERSIZEMOVE(WPARAM wParam, LPARAM lParam) = 0;
   virtual void OnEXITSIZEMOVE(WPARAM wParam, LPARAM lParam) = 0;
   virtual void OnACTIVE(WPARAM wParam, LPARAM lParam) = 0;
   virtual void OnINACTIVE(WPARAM wParam, LPARAM lParam) = 0;
 
-  LRESULT MsgHandler(HWND hWnd, UINT iMessage, WPARAM wParam,
-                          LPARAM lParam);
-
   HINSTANCE hInstance_;
   std::list<std::unique_ptr<Window>> windows_;
+  // TODO : define following member
+  //
+  // static ~App* app_;
 };
+
+// TODO: define following function in drived class's source file
+//
+// HRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam,
+//                          LPARAM lParam) {
+//   return GetApp().MsgHandler(hWnd, iMessage, wParam, lParam);
+// }

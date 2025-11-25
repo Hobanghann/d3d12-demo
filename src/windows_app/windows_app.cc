@@ -6,7 +6,6 @@
 #include <cassert>
 #include <cstdint>
 
-
 Window::Window(HINSTANCE hOwner, const std::wstring& name, uint32_t width,
                uint32_t height, WNDPROC msg_handler)
     : name_(name),
@@ -49,7 +48,7 @@ Window::Window(HINSTANCE hOwner, const std::wstring& name, uint32_t width,
   front_dc_ = GetDC(handle_);
 
   if (!front_dc_) {
-    MessageBoxW(nullptr, L"GetDC failed.", L"Error", MB_ICONERROR);
+    MessageBoxW(handle_, L"GetDC failed.", L"Error", MB_ICONERROR);
     return;
   }
 
@@ -67,6 +66,9 @@ Window::Window(HINSTANCE hOwner, const std::wstring& name, uint32_t width,
   default_bmi_.bmiHeader.biPlanes = 1;
   default_bmi_.bmiHeader.biBitCount = 32;
   default_bmi_.bmiHeader.biCompression = BI_RGB;
+
+  ShowWindow(handle_, SW_SHOW);
+  UpdateWindow(handle_);
 }
 
 Window::~Window() {
@@ -82,8 +84,34 @@ HWND Window::handle() const { return handle_; }
 const std::wstring& Window::name() const { return name_; }
 uint32_t Window::width() const { return width_; }
 uint32_t Window::height() const { return height_; }
+uint32_t Window::client_width() const { return client_width_; }
+uint32_t Window::client_height() const { return client_height_; }
+
+void Window::Resize(uint32_t width, uint32_t height) {
+  width_ = width;
+  height_ = height;
+
+  RECT rc;
+  GetClientRect(handle_, &rc);
+  client_width_ = rc.right - rc.left;
+  client_height_ = rc.bottom - rc.top;
+}
+void Window::ResizeClient(uint32_t client_width, uint32_t client_height) {
+  client_width_ = client_width;
+  client_height_ = client_height;
+
+  RECT wr;
+  GetWindowRect(handle_, &wr);
+  width_ = wr.right - wr.left;
+  height_ = wr.bottom - wr.top;
+}
 
 void Window::Show(int nCmdShow) { ShowWindow(handle_, nCmdShow); }
+
+void Window::ShowMessageBox(const std::wstring& title, const std::wstring& text,
+                            UINT type) {
+  MessageBoxW(handle_, text.c_str(), text.c_str(), type);
+}
 
 std::uint32_t* Window::CreateCPUBackBuffer(uint32_t buffer_width,
                                            uint32_t buffer_height) {
@@ -194,7 +222,7 @@ void WindowsApp::HandleMessages(MSG& Message) {
 }
 
 LRESULT WindowsApp::MsgHandler(HWND hWnd, UINT iMessage, WPARAM wParam,
-                            LPARAM lParam) {
+                               LPARAM lParam) {
   switch (iMessage) {
     case WM_KEYDOWN:
       OnKEYDOWN(wParam, lParam);
@@ -241,6 +269,9 @@ LRESULT WindowsApp::MsgHandler(HWND hWnd, UINT iMessage, WPARAM wParam,
       OnKILLFOCUS(wParam, lParam);
       return 0;
 
+    case WM_SIZE:
+      OnSize(wParam, lParam);
+      return 0;
     case WM_ENTERSIZEMOVE:
       OnENTERSIZEMOVE(wParam, lParam);
       return 0;
